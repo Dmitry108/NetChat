@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="client.ClientController"
+            prefHeight="400.0" prefWidth="600.0">
+    <padding>
+        <Insets topRightBottomLeft="8"/>
+    </padding>
+    <top>
+        <MenuBar>
+            <Menu text="Exit">
+                <MenuItem fx:id="exitMenu" text="exit" />
+            </Menu>
+        </MenuBar>
+    </top>
+    <center>
+        <TextArea fx:id="messagesTextArea" editable="false" focusTraversable="false"/>
+    </center>
+    <bottom>
+        <HBox>
+            <padding>
+                <Insets top="8"/>
+            </padding>
+            <TextField fx:id="messageTextField" HBox.hgrow="ALWAYS"/>
+            <Button fx:id="sendButton" text="send"/>
+        </HBox>
+    </bottom>
+</BorderPane>
