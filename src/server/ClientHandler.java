@@ -26,11 +26,13 @@ public class ClientHandler {
                     while (true){
                         String str = in.readUTF();
                         if (str.equals(END)) {
+                            sendMessage(END);
+                            server.describe(this);
                             System.out.println("Client disconnected");
                             break;
                         }
                         System.out.println(str);
-                        out.writeUTF("echo: " + str);
+                        sendMessage("echo: " + str);
                         server.broadcast(str);
                     }
                 } catch (IOException e) {
@@ -48,11 +50,7 @@ public class ClientHandler {
         }
     }
 
-    public void sendMessage(String message) {
-        try {
-            out.writeUTF(message);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void sendMessage(String message) throws IOException {
+        out.writeUTF(message);
     }
 }

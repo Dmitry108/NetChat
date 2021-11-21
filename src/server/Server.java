@@ -19,7 +19,7 @@ public class Server {
             System.out.println("Server start");
             while (true) {
                 Socket socket = server.accept();
-                clients.add(new ClientHandler(this, socket));
+                subscribe(new ClientHandler(this, socket));
                 System.out.println("Client connected");
             }
         } catch (IOException e) {
@@ -33,7 +33,15 @@ public class Server {
         }
     }
 
-    public void broadcast(String message){
+    public void subscribe(ClientHandler client){
+        clients.add(client);
+    }
+
+    public void describe(ClientHandler client) {
+        clients.remove(client);
+    }
+
+    public void broadcast(String message) throws IOException {
         for (ClientHandler client: clients) {
             client.sendMessage(message);
         }

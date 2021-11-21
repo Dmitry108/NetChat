@@ -28,6 +28,8 @@ public class ClientController implements Initializable {
     private final String IP = "localhost";
     private final int PORT = 11111;
 
+    private final String END = "/end";
+
     private Runnable onReceive = new Runnable() {
         @Override
         public void run() {
@@ -35,6 +37,9 @@ public class ClientController implements Initializable {
                     String str;
                     while (true){
                         str = in.readUTF();
+                        if (str.equals(END)){
+                            break;
+                        }
                         messagesTextArea.appendText(str + "\n");
                     }
                 } catch (IOException e) {
@@ -42,6 +47,7 @@ public class ClientController implements Initializable {
                 } finally {
                     disconnect();
                 }
+//                System.exit(0);
         }
     };
 
