@@ -7,20 +7,29 @@ import java.util.Vector;
 
 
 public class Server {
+    private Vector<ClientHandler> clients;
+    private IAuthService authService;
+
     private final int PORT = 11111;
 
-    private Vector<ClientHandler> clients;
+
+
+
+    public Server(){
+        clients = new Vector<>();
+
+        authService = new ImitationAuthService();
+    }
 
     private void start() {
         ServerSocket server = null;
-        clients = new Vector<>();
+
         try {
             server = new ServerSocket(PORT);
             System.out.println("Server start");
             while (true) {
                 Socket socket = server.accept();
-                subscribe(new ClientHandler(this, socket));
-                System.out.println("Client connected");
+                ClientHandler client = new ClientHandler(this, socket);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -35,6 +44,7 @@ public class Server {
 
     public void subscribe(ClientHandler client){
         clients.add(client);
+        System.out.println("Client connected: " + client.getNickName());
     }
 
     public void describe(ClientHandler client) {
@@ -47,6 +57,9 @@ public class Server {
         }
     }
 
+    public IAuthService getAuthService() {
+        return authService;
+    }
     public static void main(String[] args) {
         new Server().start();
     }
