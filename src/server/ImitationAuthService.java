@@ -26,8 +26,8 @@ public class ImitationAuthService implements IAuthService {
 
     @Override
     public String getNickByLoginPassword(String login, String password) {
-        for (User user: users) {
-            if (user.login.equals(login) && user.password.equals(password)){
+        for (User user : users) {
+            if (user.login.equals(login) && user.password.equals(password)) {
                 return user.nickname;
             }
         }

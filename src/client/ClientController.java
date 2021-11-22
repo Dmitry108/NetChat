@@ -20,7 +20,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class ClientController implements Initializable {
-////    @FXML public MenuItem exitMenu;
+    ////    @FXML public MenuItem exitMenu;
     @FXML public TextArea messagesTextArea;
     @FXML public TextField messageTextField;
     @FXML public Button sendButton;
@@ -41,10 +41,10 @@ public class ClientController implements Initializable {
     private final String AUTH = "/auth";
     private final String AUTH_OK = "/authOk";
 
-//    private boolean isAuth;
+    //    private boolean isAuth;
     private String nickname;
 
-    private void setAuth(boolean isAuth){
+    private void setAuth(boolean isAuth) {
 //        this.isAuth = isAuth;
         messagePanel.setManaged(isAuth);
         messagePanel.setVisible(isAuth);
@@ -61,8 +61,8 @@ public class ClientController implements Initializable {
         }
     }
 
-    private void setTitle(String title){
-        Platform.runLater(()->{
+    private void setTitle(String title) {
+        Platform.runLater(() -> {
             ((Stage) authButton.getScene().getWindow()).setTitle(title);
         });
     }
@@ -70,9 +70,9 @@ public class ClientController implements Initializable {
     private EventHandler<ActionEvent> onAuth = event -> {
         String login = loginTextField.getText();
         String password = passwordTextField.getText();
-        if (login.equals("")){
+        if (login.equals("")) {
             loginTextField.requestFocus();
-        } else if (password.equals("")){
+        } else if (password.equals("")) {
             passwordTextField.requestFocus();
         } else {
             try {
@@ -89,18 +89,18 @@ public class ClientController implements Initializable {
         public void run() {
             try {
                 String str;
-                while (true){
+                while (true) {
                     str = in.readUTF();
-                    if (str.startsWith(AUTH_OK)){
+                    if (str.startsWith(AUTH_OK)) {
                         nickname = str.split(" ")[1];
                         setAuth(true);
                         break;
                     }
                     messagesTextArea.appendText(str + "\n");
                 }
-                while (true){
+                while (true) {
                     str = in.readUTF();
-                    if (str.equals(END)){
+                    if (str.equals(END)) {
                         setAuth(false);
                         break;
                     }
@@ -125,7 +125,6 @@ public class ClientController implements Initializable {
         }
     };
 
-
     private void connect(String ip, int port) throws IOException {
         socket = new Socket(ip, port);
         in = new DataInputStream(socket.getInputStream());
@@ -134,7 +133,7 @@ public class ClientController implements Initializable {
         new Thread(onReceive).start();
     }
 
-    private void disconnect(){
+    private void disconnect() {
         try {
             socket.close();
         } catch (IOException e) {
