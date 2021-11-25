@@ -5,14 +5,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
 
-
 public class Server {
     private Vector<ClientHandler> clients;
     private IAuthService authService;
 
     private final int PORT = 11111;
 
-    private final String ADD = "/add";
+    private final String CHANGE_LIST = "/changeList";
     private final String REMOVE = "/remove";
 
     public Server() {
@@ -41,28 +40,24 @@ public class Server {
         }
     }
 
-    public void subscribe(ClientHandler client) {
+    public void subscribe(ClientHandler client) throws IOException {
         clients.add(client);
         System.out.println("Client connected: " + client.getNickName());
-        try {
-            for (ClientHandler c : clients) {
-                c.sendMessage(String.format("%s %s", ADD, client.getNickName()));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        StringBuilder changeList = new StringBuilder(CHANGE_LIST);
+        for (ClientHandler c : clients) {
+            changeList.append(" ").append(c.getNickName());
+        }
+        for (ClientHandler c : clients) {
+            c.sendMessage(changeList.toString());
         }
     }
 
-    public void describe(ClientHandler client) {
+    public void describe(ClientHandler client) throws IOException {
         clients.remove(client);
-        System.out.println("Client disconnected: " + client.getNickName());
-        try {
-            for (ClientHandler c : clients) {
-                c.sendMessage(String.format("%s %s", REMOVE, client.getNickName()));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (ClientHandler c : clients) {
+            c.sendMessage(String.format("%s %s", REMOVE, client.getNickName()));
         }
+        System.out.println("Client disconnected: " + client.getNickName());
     }
 
     public void broadcastMessage(ClientHandler sender, String message) throws IOException {

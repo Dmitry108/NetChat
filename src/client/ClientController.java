@@ -1,7 +1,6 @@
 package client;
 
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -15,8 +14,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URL;
-import java.util.Collections;
-import java.util.Observable;
 import java.util.ResourceBundle;
 
 public class ClientController implements Initializable {
@@ -41,15 +38,15 @@ public class ClientController implements Initializable {
     private final String END = "/end";
     private final String AUTH = "/auth";
     private final String AUTH_OK = "/authOk";
-    private final String ADD = "/add";
+    private final String CHANGE_LIST = "/changeList";
     private final String REMOVE = "/remove";
     private final String PRIVATE = "/private";
 
-    //    private boolean isAuth;
+    private boolean isAuth;
     private String nickname;
 
     private void setAuth(boolean isAuth) {
-//        this.isAuth = isAuth;
+        this.isAuth = isAuth;
         messagePanel.setManaged(isAuth);
         messagePanel.setVisible(isAuth);
         authPanel.setManaged(!isAuth);
@@ -111,26 +108,30 @@ public class ClientController implements Initializable {
         public void run() {
             try {
                 String str;
-                while (true) {
+                while (!isAuth) {
                     str = in.readUTF();
                     if (str.startsWith(AUTH_OK)) {
                         nickname = str.split(" ")[1];
                         setAuth(true);
+                    } else if (str.startsWith(END)) {
                         break;
+                    } else {
+                        messagesTextArea.appendText(str + "\n");
                     }
-                    messagesTextArea.appendText(str + "\n");
                 }
-                while (true) {
+                while (isAuth) {
                     str = in.readUTF();
                     if (str.equals(END)) {
                         setAuth(false);
-                        break;
-                    } else if (str.startsWith(ADD)) {
-                        String nickname = str.split(" ")[1];
-                        MenuItem menuItem = new MenuItem();
-                        menuItem.setText(nickname);
-                        menuItem.setOnAction(onList);
-                        listMenu.getItems().add(menuItem);
+                    } else if (str.startsWith(CHANGE_LIST)) {
+                        String[] nicknames = str.split(" ");
+                        listMenu.getItems().clear();
+                        for (int i = 1; i < nicknames.length; i++) {
+                            MenuItem menuItem = new MenuItem();
+                            menuItem.setText(nicknames[i]);
+                            menuItem.setOnAction(onList);
+                            listMenu.getItems().add(menuItem);
+                        }
                     } else if (str.startsWith(REMOVE)) {
                         String nickname = str.split(" ")[1];
                         for (MenuItem item : listMenu.getItems()) {
