@@ -17,6 +17,7 @@ public class ClientHandler {
     private final String PRIVATE = "/private";
 
     private String nickName;
+    private String login;
 
     public ClientHandler(Server server, Socket socket) {
 ////        this.server = server;
@@ -31,10 +32,15 @@ public class ClientHandler {
                     while (true) {
                         str = in.readUTF();
                         if (str.startsWith(AUTH)) {
-                            String[] strParsed = str.split(" ");
+                            String[] token = str.split(" ");
                             nickName = server.getAuthService()
-                                    .getNickByLoginPassword(strParsed[1], strParsed[2]);
+                                    .getNickByLoginPassword(token[1], token[2]);
                             if (nickName != null) {
+                                login = token[1];
+                                if (server.isLoginAuth(login)) {
+                                    sendMessage("This login have already used");
+                                    continue;
+                                }
                                 server.subscribe(this);
                                 sendMessage(AUTH_OK + " " + nickName);
                                 break;
@@ -79,5 +85,9 @@ public class ClientHandler {
 
     public String getNickName() {
         return nickName;
+    }
+
+    public String getLogin() {
+        return login;
     }
 }

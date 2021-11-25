@@ -5,10 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
@@ -20,7 +17,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class ClientController implements Initializable {
-    ////    @FXML public MenuItem exitMenu;
+    @FXML public MenuItem exitMenu;
     @FXML public TextArea messagesTextArea;
     @FXML public TextField messageTextField;
     @FXML public Button sendButton;
@@ -66,6 +63,17 @@ public class ClientController implements Initializable {
             ((Stage) authButton.getScene().getWindow()).setTitle(title);
         });
     }
+
+    private EventHandler<ActionEvent> onExit = event -> {
+        if (socket != null && !socket.isClosed()) {
+            try {
+                out.writeUTF(END);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        System.exit(0);
+    };
 
     private EventHandler<ActionEvent> onAuth = event -> {
         String login = loginTextField.getText();
@@ -148,6 +156,13 @@ public class ClientController implements Initializable {
         authButton.setOnAction(onAuth);
         sendButton.setOnAction(onSend);
         messageTextField.setOnAction(onSend);
+        Platform.runLater(() -> {
+            Stage stage = (Stage) messagesTextArea.getScene().getWindow();
+            stage.setOnCloseRequest(event -> {
+                onExit.handle(new ActionEvent());
+            });
+        });
+        exitMenu.setOnAction(onExit);
         setAuth(false);
     }
 }

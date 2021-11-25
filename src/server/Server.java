@@ -72,6 +72,14 @@ public class Server {
         return authService;
     }
 
+    public boolean isLoginAuth(String login) {
+        for (ClientHandler client : clients) {
+            if (client.getLogin().equals(login)) {
+                return true;
+            }
+        }
+        return false;
+    }
     public static void main(String[] args) {
         new Server().start();
     }
