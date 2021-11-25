@@ -15,8 +15,9 @@
     <top>
         <MenuBar>
             <Menu text="Exit">
-                <MenuItem fx:id="exitMenu" text="exit"/>
+                <MenuItem fx:id="exitMenuItem" text="exit"/>
             </Menu>
+            <Menu fx:id="listMenu" text="List"/>
         </MenuBar>
     </top>
     <center>

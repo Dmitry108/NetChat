@@ -12,6 +12,9 @@ public class Server {
 
     private final int PORT = 11111;
 
+    private final String ADD = "/add";
+    private final String REMOVE = "/remove";
+
     public Server() {
         clients = new Vector<>();
         authService = new ImitationAuthService();
@@ -41,11 +44,25 @@ public class Server {
     public void subscribe(ClientHandler client) {
         clients.add(client);
         System.out.println("Client connected: " + client.getNickName());
+        try {
+            for (ClientHandler c : clients) {
+                c.sendMessage(String.format("%s %s", ADD, client.getNickName()));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void describe(ClientHandler client) {
         clients.remove(client);
         System.out.println("Client disconnected: " + client.getNickName());
+        try {
+            for (ClientHandler c : clients) {
+                c.sendMessage(String.format("%s %s", REMOVE, client.getNickName()));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void broadcastMessage(ClientHandler sender, String message) throws IOException {

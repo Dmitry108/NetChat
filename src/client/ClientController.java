@@ -1,6 +1,7 @@
 package client;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -14,10 +15,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Observable;
 import java.util.ResourceBundle;
 
 public class ClientController implements Initializable {
-    @FXML public MenuItem exitMenu;
+    @FXML public MenuItem exitMenuItem;
     @FXML public TextArea messagesTextArea;
     @FXML public TextField messageTextField;
     @FXML public Button sendButton;
@@ -26,6 +29,7 @@ public class ClientController implements Initializable {
     @FXML public Button authButton;
     @FXML public HBox authPanel;
     @FXML public HBox messagePanel;
+    @FXML public Menu listMenu;
 
     private Socket socket;
     private DataInputStream in;
@@ -37,6 +41,9 @@ public class ClientController implements Initializable {
     private final String END = "/end";
     private final String AUTH = "/auth";
     private final String AUTH_OK = "/authOk";
+    private final String ADD = "/add";
+    private final String REMOVE = "/remove";
+    private final String PRIVATE = "/private";
 
     //    private boolean isAuth;
     private String nickname;
@@ -64,7 +71,7 @@ public class ClientController implements Initializable {
         });
     }
 
-    private EventHandler<ActionEvent> onExit = event -> {
+    private final EventHandler<ActionEvent> onExit = event -> {
         if (socket != null && !socket.isClosed()) {
             try {
                 out.writeUTF(END);
@@ -75,7 +82,14 @@ public class ClientController implements Initializable {
         System.exit(0);
     };
 
-    private EventHandler<ActionEvent> onAuth = event -> {
+    private final EventHandler<ActionEvent> onList = event -> {
+        String nick = ((MenuItem) event.getSource()).getText();
+        String message = messageTextField.getText();
+        messageTextField.setText(String.format("%s %s %s", PRIVATE, nick, message));
+        messageTextField.end();
+    };
+
+    private final EventHandler<ActionEvent> onAuth = event -> {
         String login = loginTextField.getText();
         String password = passwordTextField.getText();
         if (login.equals("")) {
@@ -92,7 +106,7 @@ public class ClientController implements Initializable {
         }
     };
 
-    private Runnable onReceive = new Runnable() {
+    private final Runnable onReceive = new Runnable() {
         @Override
         public void run() {
             try {
@@ -111,8 +125,23 @@ public class ClientController implements Initializable {
                     if (str.equals(END)) {
                         setAuth(false);
                         break;
+                    } else if (str.startsWith(ADD)) {
+                        String nickname = str.split(" ")[1];
+                        MenuItem menuItem = new MenuItem();
+                        menuItem.setText(nickname);
+                        menuItem.setOnAction(onList);
+                        listMenu.getItems().add(menuItem);
+                    } else if (str.startsWith(REMOVE)) {
+                        String nickname = str.split(" ")[1];
+                        for (MenuItem item : listMenu.getItems()) {
+                            if (item.getText().equals(nickname)) {
+                                listMenu.getItems().remove(item);
+                                break;
+                            }
+                        }
+                    } else {
+                        messagesTextArea.appendText(str + "\n");
                     }
-                    messagesTextArea.appendText(str + "\n");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -122,7 +151,7 @@ public class ClientController implements Initializable {
         }
     };
 
-    private EventHandler<ActionEvent> onSend = event -> {
+    private final EventHandler<ActionEvent> onSend = event -> {
         try {
             String str = messageTextField.getText();
             out.writeUTF(str);
@@ -162,7 +191,7 @@ public class ClientController implements Initializable {
                 onExit.handle(new ActionEvent());
             });
         });
-        exitMenu.setOnAction(onExit);
+        exitMenuItem.setOnAction(onExit);
         setAuth(false);
     }
 }

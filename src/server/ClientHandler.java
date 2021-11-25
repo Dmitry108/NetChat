@@ -41,8 +41,8 @@ public class ClientHandler {
                                     sendMessage("This login have already used");
                                     continue;
                                 }
-                                server.subscribe(this);
                                 sendMessage(AUTH_OK + " " + nickName);
+                                server.subscribe(this);
                                 break;
                             } else {
                                 sendMessage("Incorrect login or password");
