@@ -20,6 +20,9 @@
             <Menu fx:id="listMenu" text="List"/>
         </MenuBar>
     </top>
+    <left>
+        <ListView fx:id="clientListView" managed="false" visible="false" prefWidth="75"/>
+    </left>
     <center>
         <VBox>
             <HBox fx:id="authPanel" visible="true" managed="true">
@@ -31,13 +34,15 @@
                 <Button fx:id="authButton" text="Authorize"/>
             </HBox>
             <TextArea fx:id="messagesTextArea" VBox.vgrow="ALWAYS" editable="false" focusTraversable="false"/>
-            <HBox fx:id="messagePanel" visible="false" managed="false">
-                <padding>
-                    <Insets top="8"/>
-                </padding>
-                <TextField fx:id="messageTextField" HBox.hgrow="ALWAYS"/>
-                <Button fx:id="sendButton" text="send"/>
-            </HBox>
         </VBox>
     </center>
+    <bottom>
+        <HBox fx:id="messagePanel" visible="false" managed="false">
+            <padding>
+                <Insets top="8"/>
+            </padding>
+            <TextField fx:id="messageTextField" HBox.hgrow="ALWAYS"/>
+            <Button fx:id="sendButton" text="send"/>
+        </HBox>
+    </bottom>
 </BorderPane>

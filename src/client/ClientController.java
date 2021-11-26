@@ -6,6 +6,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
@@ -27,6 +28,7 @@ public class ClientController implements Initializable {
     @FXML public HBox authPanel;
     @FXML public HBox messagePanel;
     @FXML public Menu listMenu;
+    @FXML public ListView<String> clientListView;
 
     private Socket socket;
     private DataInputStream in;
@@ -51,6 +53,8 @@ public class ClientController implements Initializable {
         messagePanel.setVisible(isAuth);
         authPanel.setManaged(!isAuth);
         authPanel.setVisible(!isAuth);
+        clientListView.setManaged(isAuth);
+        clientListView.setVisible(isAuth);
         if (!isAuth) {
             nickname = null;
             setTitle("Chat");
@@ -79,8 +83,9 @@ public class ClientController implements Initializable {
         System.exit(0);
     };
 
-    private final EventHandler<ActionEvent> onList = event -> {
-        String nick = ((MenuItem) event.getSource()).getText();
+    private final EventHandler<MouseEvent> onList = event -> {
+        System.out.println("ooo");
+        String nick = ((ListView) event.getSource()).getSelectionModel().getSelectedItem().toString();
         String message = messageTextField.getText();
         messageTextField.setText(String.format("%s %s %s", PRIVATE, nick, message));
         messageTextField.end();
@@ -125,21 +130,36 @@ public class ClientController implements Initializable {
                         setAuth(false);
                     } else if (str.startsWith(CHANGE_LIST)) {
                         String[] nicknames = str.split(" ");
-                        listMenu.getItems().clear();
-                        for (int i = 1; i < nicknames.length; i++) {
-                            MenuItem menuItem = new MenuItem();
-                            menuItem.setText(nicknames[i]);
-                            menuItem.setOnAction(onList);
-                            listMenu.getItems().add(menuItem);
-                        }
+//                        listMenu.getItems().clear();
+
+                        Platform.runLater(() -> {
+                            clientListView.getItems().clear();
+                            for (int i = 1; i < nicknames.length; i++) {
+//                            MenuItem menuItem = new MenuItem();
+//                            menuItem.setText(nicknames[i]);
+//                            menuItem.setOnAction(onList);
+//                            listMenu.getItems().add(menuItem);
+                                clientListView.getItems().add(nicknames[i]);
+                            }
+
+                        });
                     } else if (str.startsWith(REMOVE)) {
                         String nickname = str.split(" ")[1];
-                        for (MenuItem item : listMenu.getItems()) {
-                            if (item.getText().equals(nickname)) {
-                                listMenu.getItems().remove(item);
-                                break;
+//                        for (MenuItem item : listMenu.getItems()) {
+//                            if (item.getText().equals(nickname)) {
+//                                listMenu.getItems().remove(item);
+//                                break;
+//                            }
+//                        }
+                        Platform.runLater(() -> {
+
+                            for (String item : clientListView.getItems()) {
+                                if (item.equals(nickname)) {
+                                    clientListView.getItems().remove(item);
+                                    break;
+                                }
                             }
-                        }
+                        });
                     } else {
                         messagesTextArea.appendText(str + "\n");
                     }
@@ -192,6 +212,10 @@ public class ClientController implements Initializable {
                 onExit.handle(new ActionEvent());
             });
         });
+        clientListView.setOnMouseClicked(onList);
+//        clientListView.setOnKeyTyped(event -> {
+//            onList.handle(new MouseEvent());
+//        });
         exitMenuItem.setOnAction(onExit);
         setAuth(false);
     }
