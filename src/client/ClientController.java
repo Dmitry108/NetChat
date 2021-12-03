@@ -1,6 +1,7 @@
 package client;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -15,6 +16,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URL;
+import java.util.Observable;
 import java.util.ResourceBundle;
 
 public class ClientController implements Initializable {
@@ -27,22 +29,11 @@ public class ClientController implements Initializable {
     @FXML public Button authButton;
     @FXML public HBox authPanel;
     @FXML public HBox messagePanel;
-    @FXML public Menu listMenu;
     @FXML public ListView<String> clientListView;
 
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
-
-    private final String IP = "localhost";
-    private final int PORT = 11111;
-
-    private final String END = "/end";
-    private final String AUTH = "/auth";
-    private final String AUTH_OK = "/authOk";
-    private final String CHANGE_LIST = "/changeList";
-    private final String REMOVE = "/remove";
-    private final String PRIVATE = "/private";
 
     private boolean isAuth;
     private String nickname;
@@ -75,7 +66,7 @@ public class ClientController implements Initializable {
     private final EventHandler<ActionEvent> onExit = event -> {
         if (socket != null && !socket.isClosed()) {
             try {
-                out.writeUTF(END);
+                out.writeUTF(Const.END);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -84,10 +75,11 @@ public class ClientController implements Initializable {
     };
 
     private final EventHandler<MouseEvent> onList = event -> {
-        System.out.println("ooo");
-        String nick = ((ListView) event.getSource()).getSelectionModel().getSelectedItem().toString();
+        String nickname = ((ListView<String>) event.getSource()).getSelectionModel()
+                .getSelectedItem();
         String message = messageTextField.getText();
-        messageTextField.setText(String.format("%s %s %s", PRIVATE, nick, message));
+        messageTextField.setText(String.format("%s %s %s", Const.PRIVATE, nickname, message));
+        messageTextField.requestFocus();
         messageTextField.end();
     };
 
@@ -100,8 +92,8 @@ public class ClientController implements Initializable {
             passwordTextField.requestFocus();
         } else {
             try {
-                if (socket == null || socket.isClosed()) connect(IP, PORT);
-                out.writeUTF(String.format("%s %s %s", AUTH, login, password));
+                if (socket == null || socket.isClosed()) connect(Const.IP, Const.PORT);
+                out.writeUTF(String.format("%s %s %s", Const.AUTH, login, password));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -112,47 +104,32 @@ public class ClientController implements Initializable {
         @Override
         public void run() {
             try {
-                String str;
                 while (!isAuth) {
-                    str = in.readUTF();
-                    if (str.startsWith(AUTH_OK)) {
+                    String str = in.readUTF();
+                    if (str.startsWith(Const.AUTH_OK)) {
                         nickname = str.split(" ")[1];
                         setAuth(true);
-                    } else if (str.startsWith(END)) {
+                    } else if (str.startsWith(Const.END)) {
                         break;
                     } else {
                         messagesTextArea.appendText(str + "\n");
                     }
                 }
                 while (isAuth) {
-                    str = in.readUTF();
-                    if (str.equals(END)) {
+                    String str = in.readUTF();
+                    if (str.equals(Const.END)) {
                         setAuth(false);
-                    } else if (str.startsWith(CHANGE_LIST)) {
+                    } else if (str.startsWith(Const.CHANGE_LIST)) {
                         String[] nicknames = str.split(" ");
-//                        listMenu.getItems().clear();
-
                         Platform.runLater(() -> {
                             clientListView.getItems().clear();
                             for (int i = 1; i < nicknames.length; i++) {
-//                            MenuItem menuItem = new MenuItem();
-//                            menuItem.setText(nicknames[i]);
-//                            menuItem.setOnAction(onList);
-//                            listMenu.getItems().add(menuItem);
                                 clientListView.getItems().add(nicknames[i]);
                             }
-
                         });
-                    } else if (str.startsWith(REMOVE)) {
+                    } else if (str.startsWith(Const.REMOVE)) {
                         String nickname = str.split(" ")[1];
-//                        for (MenuItem item : listMenu.getItems()) {
-//                            if (item.getText().equals(nickname)) {
-//                                listMenu.getItems().remove(item);
-//                                break;
-//                            }
-//                        }
                         Platform.runLater(() -> {
-
                             for (String item : clientListView.getItems()) {
                                 if (item.equals(nickname)) {
                                     clientListView.getItems().remove(item);
@@ -213,9 +190,6 @@ public class ClientController implements Initializable {
             });
         });
         clientListView.setOnMouseClicked(onList);
-//        clientListView.setOnKeyTyped(event -> {
-//            onList.handle(new MouseEvent());
-//        });
         exitMenuItem.setOnAction(onExit);
         setAuth(false);
     }

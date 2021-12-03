@@ -9,11 +9,6 @@ public class Server {
     private Vector<ClientHandler> clients;
     private IAuthService authService;
 
-    private final int PORT = 11111;
-
-    private final String CHANGE_LIST = "/changeList";
-    private final String REMOVE = "/remove";
-
     public Server() {
         clients = new Vector<>();
         authService = new ImitationAuthService();
@@ -23,7 +18,7 @@ public class Server {
         ServerSocket server = null;
 
         try {
-            server = new ServerSocket(PORT);
+            server = new ServerSocket(Const.PORT);
             System.out.println("Server start");
             while (true) {
                 Socket socket = server.accept();
@@ -43,7 +38,7 @@ public class Server {
     public void subscribe(ClientHandler client) throws IOException {
         clients.add(client);
         System.out.println("Client connected: " + client.getNickName());
-        StringBuilder changeList = new StringBuilder(CHANGE_LIST);
+        StringBuilder changeList = new StringBuilder(Const.CHANGE_LIST);
         for (ClientHandler c : clients) {
             changeList.append(" ").append(c.getNickName());
         }
@@ -55,7 +50,7 @@ public class Server {
     public void describe(ClientHandler client) throws IOException {
         clients.remove(client);
         for (ClientHandler c : clients) {
-            c.sendMessage(String.format("%s %s", REMOVE, client.getNickName()));
+            c.sendMessage(String.format("%s %s", Const.REMOVE, client.getNickName()));
         }
         System.out.println("Client disconnected: " + client.getNickName());
     }
